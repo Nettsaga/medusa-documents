@@ -1,6 +1,6 @@
 {
   "name": "@nettsaga/medusa-documents",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "private": false,
   "description": "Generate documents from Medusa",
   "author": "Nettsaga (https://nettsaga.no)",
