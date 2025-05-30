@@ -1,7 +1,10 @@
-{ 
+{
   "invoice": "Invoice",
   "invoice-number": "Invoice number",
   "invoice-date": "Invoice date",
+  "kid-number": "KID",
+  "bank-account": "Bank Account",
+  "due-date": "Due Date",
   "invoice-customer-details": "Details",
   "invoice-bill-to": "Bill to",
   "invoice-ship-to": "Ship to",

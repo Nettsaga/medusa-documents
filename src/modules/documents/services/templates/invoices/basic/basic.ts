@@ -30,8 +30,15 @@ export function validateInput(settings?: DocumentSettingsDTO): ([boolean, string
 
 export default async (settings: DocumentSettingsDTO, invoice: DocumentInvoiceDTO, order: OrderDTO, invoiceSettings?: DocumentInvoiceSettingsDTO): Promise<Buffer> => {
   var doc = new PDFDocument();
-  doc.registerFont('Regular', path.resolve(__dirname, '../../../../assets/fonts/IBMPlexSans-Regular.ttf'))
-  doc.registerFont('Bold', path.resolve(__dirname, '../../../../assets/fonts/IBMPlexSans-Bold.ttf'))
+
+  try {
+    doc.registerFont('Regular', path.resolve(__dirname, '../../../../assets/fonts/IBMPlexSans-Regular.ttf'));
+    doc.registerFont('Bold', path.resolve(__dirname, '../../../../assets/fonts/IBMPlexSans-Bold.ttf'));
+  } catch (error) {
+    // If custom fonts fail, PDFKit will fall back to default fonts
+    console.warn('Could not load custom fonts, using default fonts. Error:', error.message);
+  }
+
   doc.font('Regular');
 
   const buffers = []

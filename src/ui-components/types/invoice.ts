@@ -19,6 +19,5 @@ export type Invoice = {
   order: OrderDTO,
   created_at: Date,
   kidNumber: string | null,
-  bankAccount: string | null,
-  dueDays: number | null
+  dueDate: Date | null
 }
