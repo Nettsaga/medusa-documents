@@ -6,8 +6,17 @@
   "author": "Nettsaga (https://nettsaga.no)",
   "license": "MIT",
   "files": [
-    ".medusa/server"
+    ".medusa/server",
+    "src/modules/documents/assets"
   ],
+  "medusa-plugin": {
+    "copy": [
+      {
+        "from": "src/modules/documents/assets",
+        "to": "modules/documents/assets"
+      }
+    ]
+  },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
