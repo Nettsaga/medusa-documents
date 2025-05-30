@@ -32,6 +32,7 @@ export const POST = async (
   const orderModuleService: IOrderModuleService = req.scope.resolve(
     Modules.ORDER
   );
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   try {
     const body: any = req.body as any;
@@ -40,44 +41,39 @@ export const POST = async (
       relations: ['shipping_address', 'billing_address', 'items']
     })
     if (order) {
-      const result = await documentsModuleService.generateInvoiceForOrder(order)
-      if (result.invoice) {
-        const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-        const {
-          data: [orderWithInvoice],
-        } = await query.graph({
-          entity: "order",
-          filters: {
-            id: [
-              order.id
-            ]
-          },
-          fields: [
-            "document_invoice.*",
-          ],
-        });
-        await assignInvoiceToOrderWorkflow(req.scope)
-          .run({
-            input: {
-              orderId: order.id,
-              newInvoiceId: result.invoice.id,
-              oldInvoiceId: orderWithInvoice.document_invoice ? orderWithInvoice.document_invoice.id : undefined
-            }
-          })
+      /* 1 ─ look for an existing linked invoice */
+      const {
+        data: [orderWithInvoice],
+      } = await query.graph({
+        entity: 'order',
+        filters: { id: [order.id] },
+        fields: ['document_invoice.*'],
+      })
 
-        res.status(201).json(result);
+      let result
+
+      if (orderWithInvoice?.document_invoice) {
+        /* 1a ─ reuse existing invoice, include buffer */
+        result = await documentsModuleService.getInvoice(
+          order,
+          orderWithInvoice.document_invoice.id,
+          true
+        )
       } else {
-        throw new MedusaError(
-          MedusaError.Types.INVALID_DATA,
-          'Invoice not generated'
-        );
+        /* 1b ─ create a fresh one */
+        result = await documentsModuleService.generateInvoiceForOrder(order)
+
+        await assignInvoiceToOrderWorkflow(req.scope).run({
+          input: {
+            orderId: order.id,
+            newInvoiceId: result.invoice.id,
+            oldInvoiceId: undefined,
+          },
+        })
       }
-    } else {
-      throw new MedusaError(
-        MedusaError.Types.INVALID_DATA,
-        'Invalid order id'
-      );
+      res.status(201).json(result);
     }
+
   } catch (e) {
     res.status(400).json({
       message: e.message
