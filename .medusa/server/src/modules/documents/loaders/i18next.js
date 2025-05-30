@@ -10,6 +10,7 @@ async function i18nextLoader({ container, options }) {
     console.info("Starting i18next loader...");
     try {
         const defaultTranslationsPath = path_1.default.resolve(__dirname, `../assets/i18n/locales/en/translation.json`);
+        console.info(`Attempting to load default English translations from: ${defaultTranslationsPath}`);
         const { default: data } = await import(defaultTranslationsPath, { with: { type: "json" } });
         await i18next_1.default
             .init({
@@ -22,11 +23,12 @@ async function i18nextLoader({ container, options }) {
                 }
             }
         }).catch((error) => {
-            console.error(error);
+            console.error("Error during i18next.init:", error);
         });
+        console.info("i18next initialized with default English translations.");
     }
     catch (error) {
-        console.error('Error initializing i18next:', error);
+        console.error('Error initializing i18next with default translations:', error);
     }
     try {
         const configLanguage = options?.document_language;
@@ -35,15 +37,22 @@ async function i18nextLoader({ container, options }) {
         }
         else {
             console.info(`Language is configured as ${configLanguage}`);
-            const translationPath = path_1.default.resolve(__dirname, `../assets/i18n/locales/${configLanguage}/translation.json`);
-            const translations = await import(translationPath);
-            i18next_1.default.addResourceBundle(configLanguage, 'translation', translations);
-            i18next_1.default.changeLanguage(configLanguage);
+            try {
+                const translationPath = path_1.default.resolve(__dirname, `../assets/i18n/locales/${configLanguage}/translation.json`);
+                console.info(`Attempting to load configured language translations from: ${translationPath}`);
+                const { default: langTranslations } = await import(translationPath, { with: { type: "json" } });
+                i18next_1.default.addResourceBundle(configLanguage, 'translation', langTranslations);
+                i18next_1.default.changeLanguage(configLanguage);
+                console.info(`Successfully added and changed language to: ${configLanguage}`);
+            }
+            catch (error) {
+                console.error(`Error adding language configured in config (${configLanguage}). Fallback to "en". Path tried: ${path_1.default.resolve(__dirname, `../assets/i18n/locales/${configLanguage}/translation.json`)}`, error);
+            }
         }
     }
-    catch {
-        console.error('Error adding language configured in config. Fallback to "en"');
+    catch (error) {
+        console.error('Error processing language configuration. Fallback to "en"', error);
     }
     console.info("Ending i18next loader...");
 }
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaTE4bmV4dC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uLy4uLy4uL3NyYy9tb2R1bGVzL2RvY3VtZW50cy9sb2FkZXJzL2kxOG5leHQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7QUFXQSxnQ0FpREM7QUF4REQsc0RBQThCO0FBQzlCLGdEQUF3QjtBQU1ULEtBQUssVUFBVSxhQUFhLENBQUMsRUFDMUMsU0FBUyxFQUNULE9BQU8sRUFDc0I7SUFDN0IsT0FBTyxDQUFDLElBQUksQ0FBQyw0QkFBNEIsQ0FBQyxDQUFBO0lBRTFDLElBQUksQ0FBQztRQUNILE1BQU0sdUJBQXVCLEdBQUcsY0FBSSxDQUFDLE9BQU8sQ0FBQyxTQUFTLEVBQUUsNENBQTRDLENBQUMsQ0FBQztRQUN0RyxNQUFNLEVBQUUsT0FBTyxFQUFFLElBQUksRUFBRSxHQUFHLE1BQU0sTUFBTSxDQUFDLHVCQUF1QixFQUFFLEVBQUUsSUFBSSxFQUFFLEVBQUUsSUFBSSxFQUFFLE1BQU0sRUFBRSxFQUFFLENBQUMsQ0FBQztRQUU1RixNQUFNLGlCQUFPO2FBQ1YsSUFBSSxDQUFDO1lBQ0osV0FBVyxFQUFFLElBQUk7WUFDakIsU0FBUyxFQUFFLGFBQWE7WUFDeEIsRUFBRSxFQUFFLGFBQWE7WUFDakIsU0FBUyxFQUFFO2dCQUNULEVBQUUsRUFBRTtvQkFDRixXQUFXLEVBQUUsSUFBSTtpQkFDbEI7YUFDRjtTQUNGLENBQUMsQ0FBQyxLQUFLLENBQUMsQ0FBQyxLQUFLLEVBQUUsRUFBRTtZQUNqQixPQUFPLENBQUMsS0FBSyxDQUFDLEtBQUssQ0FBQyxDQUFDO1FBQ3ZCLENBQUMsQ0FBQyxDQUFDO0lBRVAsQ0FBQztJQUFDLE9BQU8sS0FBSyxFQUFFLENBQUM7UUFDZixPQUFPLENBQUMsS0FBSyxDQUFDLDZCQUE2QixFQUFFLEtBQUssQ0FBQyxDQUFDO0lBQ3RELENBQUM7SUFHRCxJQUFJLENBQUM7UUFDSCxNQUFNLGNBQWMsR0FBRyxPQUFPLEVBQUUsaUJBQWlCLENBQUE7UUFDakQsSUFBSSxjQUFjLEtBQUssU0FBUyxFQUFFLENBQUM7WUFDakMsT0FBTyxDQUFDLElBQUksQ0FBQyxvREFBb0QsQ0FBQyxDQUFBO1FBQ3BFLENBQUM7YUFBTSxDQUFDO1lBQ04sT0FBTyxDQUFDLElBQUksQ0FBQyw2QkFBNkIsY0FBYyxFQUFFLENBQUMsQ0FBQTtZQUMzRCxNQUFNLGVBQWUsR0FBRyxjQUFJLENBQUMsT0FBTyxDQUFDLFNBQVMsRUFBRSwwQkFBMEIsY0FBYyxtQkFBbUIsQ0FBQyxDQUFDO1lBQzdHLE1BQU0sWUFBWSxHQUFHLE1BQU0sTUFBTSxDQUFDLGVBQWUsQ0FBQyxDQUFDO1lBQ25ELGlCQUFPLENBQUMsaUJBQWlCLENBQ3ZCLGNBQWMsRUFDZCxhQUFhLEVBQ2IsWUFBWSxDQUNiLENBQUE7WUFDRCxpQkFBTyxDQUFDLGNBQWMsQ0FBQyxjQUFjLENBQUMsQ0FBQztRQUN6QyxDQUFDO0lBQ0gsQ0FBQztJQUFDLE1BQU0sQ0FBQztRQUNQLE9BQU8sQ0FBQyxLQUFLLENBQUMsOERBQThELENBQUMsQ0FBQztJQUNoRixDQUFDO0lBRUQsT0FBTyxDQUFDLElBQUksQ0FBQywwQkFBMEIsQ0FBQyxDQUFBO0FBQzFDLENBQUMifQ==
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaTE4bmV4dC5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uLy4uLy4uLy4uLy4uLy4uL3NyYy9tb2R1bGVzL2RvY3VtZW50cy9sb2FkZXJzL2kxOG5leHQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7QUFXQSxnQ0F5REM7QUFoRUQsc0RBQThCO0FBQzlCLGdEQUF3QjtBQU1ULEtBQUssVUFBVSxhQUFhLENBQUMsRUFDMUMsU0FBUyxFQUNULE9BQU8sRUFDc0I7SUFDN0IsT0FBTyxDQUFDLElBQUksQ0FBQyw0QkFBNEIsQ0FBQyxDQUFBO0lBRTFDLElBQUksQ0FBQztRQUNILE1BQU0sdUJBQXVCLEdBQUcsY0FBSSxDQUFDLE9BQU8sQ0FBQyxTQUFTLEVBQUUsNENBQTRDLENBQUMsQ0FBQztRQUN0RyxPQUFPLENBQUMsSUFBSSxDQUFDLHlEQUF5RCx1QkFBdUIsRUFBRSxDQUFDLENBQUM7UUFDakcsTUFBTSxFQUFFLE9BQU8sRUFBRSxJQUFJLEVBQUUsR0FBRyxNQUFNLE1BQU0sQ0FBQyx1QkFBdUIsRUFBRSxFQUFFLElBQUksRUFBRSxFQUFFLElBQUksRUFBRSxNQUFNLEVBQUUsRUFBRSxDQUFDLENBQUM7UUFFNUYsTUFBTSxpQkFBTzthQUNWLElBQUksQ0FBQztZQUNKLFdBQVcsRUFBRSxJQUFJO1lBQ2pCLFNBQVMsRUFBRSxhQUFhO1lBQ3hCLEVBQUUsRUFBRSxhQUFhO1lBQ2pCLFNBQVMsRUFBRTtnQkFDVCxFQUFFLEVBQUU7b0JBQ0YsV0FBVyxFQUFFLElBQUk7aUJBQ2xCO2FBQ0Y7U0FDRixDQUFDLENBQUMsS0FBSyxDQUFDLENBQUMsS0FBSyxFQUFFLEVBQUU7WUFDakIsT0FBTyxDQUFDLEtBQUssQ0FBQyw0QkFBNEIsRUFBRSxLQUFLLENBQUMsQ0FBQztRQUNyRCxDQUFDLENBQUMsQ0FBQztRQUNMLE9BQU8sQ0FBQyxJQUFJLENBQUMsd0RBQXdELENBQUMsQ0FBQztJQUV6RSxDQUFDO0lBQUMsT0FBTyxLQUFLLEVBQUUsQ0FBQztRQUNmLE9BQU8sQ0FBQyxLQUFLLENBQUMsdURBQXVELEVBQUUsS0FBSyxDQUFDLENBQUM7SUFDaEYsQ0FBQztJQUdELElBQUksQ0FBQztRQUNILE1BQU0sY0FBYyxHQUFHLE9BQU8sRUFBRSxpQkFBaUIsQ0FBQTtRQUNqRCxJQUFJLGNBQWMsS0FBSyxTQUFTLEVBQUUsQ0FBQztZQUNqQyxPQUFPLENBQUMsSUFBSSxDQUFDLG9EQUFvRCxDQUFDLENBQUE7UUFDcEUsQ0FBQzthQUFNLENBQUM7WUFDTixPQUFPLENBQUMsSUFBSSxDQUFDLDZCQUE2QixjQUFjLEVBQUUsQ0FBQyxDQUFBO1lBQzNELElBQUksQ0FBQztnQkFDSCxNQUFNLGVBQWUsR0FBRyxjQUFJLENBQUMsT0FBTyxDQUFDLFNBQVMsRUFBRSwwQkFBMEIsY0FBYyxtQkFBbUIsQ0FBQyxDQUFDO2dCQUM3RyxPQUFPLENBQUMsSUFBSSxDQUFDLDZEQUE2RCxlQUFlLEVBQUUsQ0FBQyxDQUFDO2dCQUM3RixNQUFNLEVBQUUsT0FBTyxFQUFFLGdCQUFnQixFQUFFLEdBQUcsTUFBTSxNQUFNLENBQUMsZUFBZSxFQUFFLEVBQUUsSUFBSSxFQUFFLEVBQUUsSUFBSSxFQUFFLE1BQU0sRUFBRSxFQUFFLENBQUMsQ0FBQztnQkFDaEcsaUJBQU8sQ0FBQyxpQkFBaUIsQ0FDdkIsY0FBYyxFQUNkLGFBQWEsRUFDYixnQkFBZ0IsQ0FDakIsQ0FBQTtnQkFDRCxpQkFBTyxDQUFDLGNBQWMsQ0FBQyxjQUFjLENBQUMsQ0FBQztnQkFDdkMsT0FBTyxDQUFDLElBQUksQ0FBQywrQ0FBK0MsY0FBYyxFQUFFLENBQUMsQ0FBQztZQUNoRixDQUFDO1lBQUMsT0FBTyxLQUFLLEVBQUUsQ0FBQztnQkFDZixPQUFPLENBQUMsS0FBSyxDQUFDLCtDQUErQyxjQUFjLG9DQUFvQyxjQUFJLENBQUMsT0FBTyxDQUFDLFNBQVMsRUFBRSwwQkFBMEIsY0FBYyxtQkFBbUIsQ0FBQyxFQUFFLEVBQUUsS0FBSyxDQUFDLENBQUM7WUFDaE4sQ0FBQztRQUNILENBQUM7SUFDSCxDQUFDO0lBQUMsT0FBTyxLQUFLLEVBQUUsQ0FBQztRQUNmLE9BQU8sQ0FBQyxLQUFLLENBQUMsMkRBQTJELEVBQUUsS0FBSyxDQUFDLENBQUM7SUFDcEYsQ0FBQztJQUVELE9BQU8sQ0FBQyxJQUFJLENBQUMsMEJBQTBCLENBQUMsQ0FBQTtBQUMxQyxDQUFDIn0=

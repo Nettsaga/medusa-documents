@@ -17,6 +17,7 @@ export default async function i18nextLoader({
 
   try {
     const defaultTranslationsPath = path.resolve(__dirname, `../assets/i18n/locales/en/translation.json`);
+    console.info(`Attempting to load default English translations from: ${defaultTranslationsPath}`);
     const { default: data } = await import(defaultTranslationsPath, { with: { type: "json" } });
 
     await i18next
@@ -30,11 +31,12 @@ export default async function i18nextLoader({
           }
         }
       }).catch((error) => {
-        console.error(error);
+        console.error("Error during i18next.init:", error);
       });
+    console.info("i18next initialized with default English translations.");
 
   } catch (error) {
-    console.error('Error initializing i18next:', error);
+    console.error('Error initializing i18next with default translations:', error);
   }
 
 
@@ -44,17 +46,23 @@ export default async function i18nextLoader({
       console.info('Language is not configured, using "en" by default.')
     } else {
       console.info(`Language is configured as ${configLanguage}`)
-      const translationPath = path.resolve(__dirname, `../assets/i18n/locales/${configLanguage}/translation.json`);
-      const translations = await import(translationPath);
-      i18next.addResourceBundle(
-        configLanguage,
-        'translation',
-        translations
-      )
-      i18next.changeLanguage(configLanguage);
+      try {
+        const translationPath = path.resolve(__dirname, `../assets/i18n/locales/${configLanguage}/translation.json`);
+        console.info(`Attempting to load configured language translations from: ${translationPath}`);
+        const { default: langTranslations } = await import(translationPath, { with: { type: "json" } });
+        i18next.addResourceBundle(
+          configLanguage,
+          'translation',
+          langTranslations
+        )
+        i18next.changeLanguage(configLanguage);
+        console.info(`Successfully added and changed language to: ${configLanguage}`);
+      } catch (error) {
+        console.error(`Error adding language configured in config (${configLanguage}). Fallback to "en". Path tried: ${path.resolve(__dirname, `../assets/i18n/locales/${configLanguage}/translation.json`)}`, error);
+      }
     }
-  } catch {
-    console.error('Error adding language configured in config. Fallback to "en"');
+  } catch (error) {
+    console.error('Error processing language configuration. Fallback to "en"', error);
   }
 
   console.info("Ending i18next loader...")
