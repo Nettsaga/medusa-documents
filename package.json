@@ -1,7 +1,7 @@
 {
   "name": "@nettsaga/medusa-documents",
   "version": "0.2.11",
-  "private": true,
+  "private": false,
   "description": "Generate documents from Medusa",
   "author": "Nettsaga (https://nettsaga.no)",
   "license": "MIT",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nettsaga/medusa-documents"
+    "url": "git+https://github.com/nettsaga/medusa-documents.git"
   },
   "keywords": [
     "medusa-plugin",
