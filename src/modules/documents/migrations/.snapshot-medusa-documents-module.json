@@ -42,6 +42,24 @@
           "nullable": true,
           "mappedType": "text"
         },
+        "bankAccount": {
+          "name": "bankAccount",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "dueDays": {
+          "name": "dueDays",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz",
@@ -467,6 +485,25 @@
           "primary": false,
           "nullable": false,
           "mappedType": "text"
+        },
+        "kidNumber": {
+          "name": "kidNumber",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "dueDate": {
+          "name": "dueDate",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
         },
         "invoice_settings_id": {
           "name": "invoice_settings_id",
