@@ -13,22 +13,26 @@
 import { Heading, Text, FocusModal, Button, Input, Label, Alert } from "@medusajs/ui"
 import { CircularProgress, Grid } from "@mui/material";
 import { useForm } from "react-hook-form";
-import { toast  } from "@medusajs/ui"
+import { toast } from "@medusajs/ui"
 import { useEffect, useState } from "react";
 import { DocumentInvoiceSettings } from "../types/api";
 import InvoiceSettingsDisplayNumber from "./settings-invoice-display-number";
 
 type InvoiceSettings = {
   formatNumber: string,
-  forcedNumber?: number
+  forcedNumber?: number,
+  bankAccount?: string,
+  dueDays?: number
 }
 
-const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSettings?: DocumentInvoiceSettings, setOpenModal: any}) => {
+const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal }: { invoiceSettings?: DocumentInvoiceSettings, setOpenModal: any }) => {
 
   const { register, handleSubmit, formState: { errors } } = useForm<InvoiceSettings>()
   const [formatNumber, setFormatNumber] = useState(invoiceSettings?.numberFormat);
   const [forcedNumber, setForcedNumber] = useState(invoiceSettings?.forcedNumber);
-  const [ error, setError ] = useState<string | undefined>(undefined);
+  const [bankAccount, setBankAccount] = useState(invoiceSettings?.bankAccount);
+  const [dueDays, setDueDays] = useState(invoiceSettings?.dueDays);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const onSubmit = (data: InvoiceSettings) => {
     fetch(`/admin/documents/document-invoice-settings`, {
@@ -39,34 +43,37 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSetting
       },
       body: JSON.stringify({
         formatNumber: data.formatNumber,
-        forcedNumber: data.forcedNumber !== undefined && data.forcedNumber.toString().length ? data.forcedNumber : undefined
+        forcedNumber: data.forcedNumber !== undefined && data.forcedNumber.toString().length ? data.forcedNumber : undefined,
+        bankAccount: data.bankAccount || undefined,
+        dueDays: data.dueDays || undefined
       })
     })
-    .then(async (response) => {
-      if (response.ok) {
-        toast.success('Invoice settings', {
-          description: "New invoice settings saved",
-        });
-        setOpenModal(false);
-      } else {
-        const error = await response.json();
+      .then(async (response) => {
+        if (response.ok) {
+          toast.success('Invoice settings', {
+            description: "New invoice settings saved",
+          });
+          setOpenModal(false);
+        } else {
+          const error = await response.json();
+          toast.error('Invoice settings', {
+            description: `New invoice settings cannot be saved, some error happened. ${error.message}`,
+          });
+        }
+      })
+      .catch((e) => {
         toast.error('Invoice settings', {
-          description: `New invoice settings cannot be saved, some error happened. ${error.message}`,
+          description: `New invoice settings cannot be saved, some error happened. ${e.toString()}`,
         });
-      }
-    })
-    .catch((e) => {
-      toast.error('Invoice settings', {
-        description: `New invoice settings cannot be saved, some error happened. ${e.toString()}`,
-      });
-      console.error(e)
-    })
+        console.error(e)
+      })
   }
   const INVOICE_NUMBER_PLACEHOLDER = '{invoice_number}';
   const errorText = `Text ${INVOICE_NUMBER_PLACEHOLDER} needs to be included in input.`
   const LABEL_MUST_FORMAT = `Format must include ${INVOICE_NUMBER_PLACEHOLDER}`;
   const LABEL_MUST_FORCED = `Forced number must be a number`;
   const LABEL_INFO_FORCED = `It will auto-increment starting from this number.`;
+  const LABEL_MUST_DUE_DAYS = `Due days must be a positive number`;
 
   const validateFormatNumber = (value) => {
     if (!value.includes(INVOICE_NUMBER_PLACEHOLDER)) {
@@ -77,6 +84,12 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSetting
   const validateForcedNumber = (value) => {
     if (value.length && isNaN(Number(value))) {
       return LABEL_MUST_FORCED;
+    }
+    return true;
+  };
+  const validateDueDays = (value) => {
+    if (value.length && (isNaN(Number(value)) || Number(value) < 0)) {
+      return LABEL_MUST_DUE_DAYS;
     }
     return true;
   };
@@ -100,7 +113,7 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSetting
             </Grid>
           </Grid>
           <Grid item>
-            <Input 
+            <Input
               placeholder={INVOICE_NUMBER_PLACEHOLDER}
               defaultValue={invoiceSettings?.numberFormat ? invoiceSettings.numberFormat : INVOICE_NUMBER_PLACEHOLDER}
               {...register('formatNumber', {
@@ -135,8 +148,8 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSetting
             </Grid>
           </Grid>
           <Grid item>
-            <Input 
-              defaultValue={invoiceSettings?.forcedNumber !== undefined &&  invoiceSettings.forcedNumber !== null 
+            <Input
+              defaultValue={invoiceSettings?.forcedNumber !== undefined && invoiceSettings.forcedNumber !== null
                 ? invoiceSettings.forcedNumber : ''}
               type="number"
               {...register('forcedNumber', {
@@ -155,6 +168,64 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSetting
             />
           </Grid>
         </Grid>
+
+        <Grid container direction={'column'} spacing={1} marginTop={2}>
+          <Grid item>
+            <Label size="small">
+              Bank Account
+            </Label>
+          </Grid>
+          <Grid item>
+            <Input
+              placeholder="Enter bank account information"
+              defaultValue={invoiceSettings?.bankAccount || ''}
+              {...register('bankAccount', {
+                onChange(e) {
+                  setBankAccount(e.target.value);
+                },
+              })}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container direction={'column'} spacing={1} marginTop={2}>
+          <Grid item>
+            <Grid container direction={'column'}>
+              <Grid item>
+                <Label size="small">
+                  Due Days
+                </Label>
+              </Grid>
+              <Grid item>
+                <Label size='xsmall'>
+                  Number of days after invoice creation when payment is due
+                </Label>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Input
+              type="number"
+              placeholder="30"
+              defaultValue={invoiceSettings?.dueDays !== undefined && invoiceSettings.dueDays !== null
+                ? invoiceSettings.dueDays : ''}
+              {...register('dueDays', {
+                validate: validateDueDays,
+                onChange(e) {
+                  const value = e.target.value
+                  if (typeof validateDueDays(value) === 'string') {
+                    const result: string = validateDueDays(value) as unknown as any;
+                    setError(result)
+                  } else {
+                    setError(undefined);
+                    setDueDays(value);
+                  }
+                },
+              })}
+            />
+          </Grid>
+        </Grid>
+
         <Grid container direction={'column'} spacing={1} marginTop={2}>
           <Grid item>
             <Label size="small">
@@ -162,7 +233,7 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSetting
             </Label>
           </Grid>
           {errors.formatNumber == undefined && errors.forcedNumber == undefined && error == undefined && <Grid item>
-            <InvoiceSettingsDisplayNumber formatNumber={formatNumber} forcedNumber={forcedNumber !== undefined && forcedNumber !== null ? parseInt(forcedNumber) : undefined}/>
+            <InvoiceSettingsDisplayNumber formatNumber={formatNumber} forcedNumber={forcedNumber !== undefined && forcedNumber !== null ? parseInt(forcedNumber) : undefined} />
           </Grid>}
         </Grid>
         <Grid item>
@@ -174,12 +245,12 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal } : {invoiceSetting
             Save
           </Button>
         </Grid>
-        {(errors.formatNumber || errors.forcedNumber) && <Grid item>
+        {(errors.formatNumber || errors.forcedNumber || errors.dueDays) && <Grid item>
           <Alert variant="error">{errorText}</Alert>
         </Grid>}
-          {error && <Grid item>
-            <Alert variant="error">{error}</Alert>
-          </Grid>}
+        {error && <Grid item>
+          <Alert variant="error">{error}</Alert>
+        </Grid>}
       </Grid>
     </form>
   )
@@ -201,21 +272,21 @@ const InvoiceSettingsModalDetails = ({ setOpenModal }) => {
     fetch(`/admin/documents/document-invoice-settings`, {
       credentials: "include",
     })
-    .then((res) => res.json())
-    .then((result) => {
-      setData(result)
-      setLoading(false)
-    })
-    .catch((error) => {
-      setError(error);
-      console.error(error);
-    }) 
+      .then((res) => res.json())
+      .then((result) => {
+        setData(result)
+        setLoading(false)
+      })
+      .catch((error) => {
+        setError(error);
+        console.error(error);
+      })
   }, [isLoading])
 
   if (isLoading) {
     return (
       <FocusModal.Body>
-        <CircularProgress/>
+        <CircularProgress />
       </FocusModal.Body>
     )
   }
@@ -232,7 +303,7 @@ const InvoiceSettingsModalDetails = ({ setOpenModal }) => {
           </Text>
         </Grid>
         <Grid item>
-          <InvoiceSettingsForm invoiceSettings={data?.settings} setOpenModal={setOpenModal}/>
+          <InvoiceSettingsForm invoiceSettings={data?.settings} setOpenModal={setOpenModal} />
         </Grid>
       </Grid>
     </FocusModal.Body>
@@ -251,8 +322,8 @@ const InvoiceSettingsModal = () => {
         <Button>Change settings</Button>
       </FocusModal.Trigger>
       <FocusModal.Content>
-        <FocusModal.Header/>
-        <InvoiceSettingsModalDetails setOpenModal={setOpen}/>
+        <FocusModal.Header />
+        <InvoiceSettingsModalDetails setOpenModal={setOpen} />
       </FocusModal.Content>
     </FocusModal>
   )

@@ -18,6 +18,8 @@ const DocumentInvoice = model.define("document_invoice", {
   id: model.id().primaryKey(),
   number: model.number(),
   displayNumber: model.text(),
+  kidNumber: model.text().nullable(),
+  dueDate: model.dateTime().nullable(),
   invoiceSettings: model.belongsTo(() => DocumentInvoiceSettings, {
     mappedBy: 'documentInvoice'
   }),

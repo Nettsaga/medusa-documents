@@ -11,12 +11,12 @@
  */
 
 import { OrderDTO } from "@medusajs/framework/types"
-import { DocumentInvoiceDTO, DocumentSettingsDTO } from "../../types/dto";
+import { DocumentInvoiceDTO, DocumentSettingsDTO, DocumentInvoiceSettingsDTO } from "../../types/dto";
 import { InvoiceTemplateKind } from "../../types/template-kind";
-import basicTemplate, { validateInput as validateInputBasic} from '../templates/invoices/basic/basic'
-import basicLogoTemplate, { validateInput as validateInputBasicLogo} from '../templates/invoices/basic/basic-logo'
+import basicTemplate, { validateInput as validateInputBasic } from '../templates/invoices/basic/basic'
+import basicLogoTemplate, { validateInput as validateInputBasicLogo } from '../templates/invoices/basic/basic-logo'
 
-export function validateInputForProvidedKind(templateKind: InvoiceTemplateKind, documentSettings: any) : ([boolean, string]) {
+export function validateInputForProvidedKind(templateKind: InvoiceTemplateKind, documentSettings: any): ([boolean, string]) {
   switch (templateKind) {
     case InvoiceTemplateKind.BASIC:
       return validateInputBasic(documentSettings);
@@ -27,12 +27,12 @@ export function validateInputForProvidedKind(templateKind: InvoiceTemplateKind, 
   }
 }
 
-export function generateInvoice(kind: InvoiceTemplateKind, documentSettings: DocumentSettingsDTO, invoice: DocumentInvoiceDTO, order: OrderDTO): Promise<Buffer> | undefined {
+export function generateInvoice(kind: InvoiceTemplateKind, documentSettings: DocumentSettingsDTO, invoice: DocumentInvoiceDTO, order: OrderDTO, invoiceSettings?: DocumentInvoiceSettingsDTO): Promise<Buffer> | undefined {
   switch (kind) {
     case InvoiceTemplateKind.BASIC:
-      return basicTemplate(documentSettings, invoice, order);
+      return basicTemplate(documentSettings, invoice, order, invoiceSettings);
     case InvoiceTemplateKind.BASIC_LOGO:
-      return basicLogoTemplate(documentSettings, invoice, order);
+      return basicLogoTemplate(documentSettings, invoice, order, invoiceSettings);
     default:
       return Promise.resolve(Buffer.from('Not supported template'));
   }

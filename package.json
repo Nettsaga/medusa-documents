@@ -1,15 +1,19 @@
 {
-  "name": "@rsc-labs/medusa-documents-v2",
-  "version": "0.2.11",
+  "name": "@nettsaga/medusa-documents",
+  "version": "0.2.11-private.0",
+  "private": false,
   "description": "Generate documents from Medusa",
-  "author": "RSC Labs (https://rsoftcon.com)",
+  "author": "Nettsaga (https://nettsaga.no)",
   "license": "MIT",
   "files": [
     ".medusa/server"
   ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/RSC-Labs/medusa-documents"
+    "url": "https://github.com/nettsaga/medusa-documents"
   },
   "keywords": [
     "medusa-plugin",
@@ -93,5 +97,9 @@
       "require": "./.medusa/server/src/admin/index.js",
       "default": "./.medusa/server/src/admin/index.js"
     }
-  }
+  },
+  "trustedDependencies": [
+    "@medusajs/telemetry",
+    "@swc/core"
+  ]
 }

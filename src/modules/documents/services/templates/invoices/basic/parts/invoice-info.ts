@@ -10,11 +10,11 @@
  * limitations under the License.
  */
 
-import { DocumentInvoiceDTO } from "../../../../../../../modules/documents/types/dto";
+import { DocumentInvoiceDTO, DocumentSettingsDTO, DocumentInvoiceSettingsDTO } from "../../../../../../../modules/documents/types/dto";
 import { generateHr } from "./hr";
 import { t } from "i18next";
 
-export function generateInvoiceInformation(doc, y: number, invoice: DocumentInvoiceDTO) : number {
+export function generateInvoiceInformation(doc, y: number, invoice: DocumentInvoiceDTO, settings?: DocumentSettingsDTO, invoiceSettings?: DocumentInvoiceSettingsDTO): number {
   doc
     .fillColor("#444444")
     .fontSize(20)
@@ -23,16 +23,48 @@ export function generateInvoiceInformation(doc, y: number, invoice: DocumentInvo
   generateHr(doc, y + 65);
 
   const invoiceInformationTop = y + 80;
+  let currentY = invoiceInformationTop;
 
   doc
     .fontSize(10)
-    .text(`${t("invoice-number", "Invoice number")}:`, 50, invoiceInformationTop)
+    .text(`${t("invoice-number", "Invoice number")}:`, 50, currentY)
     .font("Bold")
-    .text(invoice.displayNumber, 150, invoiceInformationTop)
+    .text(invoice.displayNumber, 150, currentY)
     .font("Regular")
-    .text(`${t("invoice-date", "Invoice date")}:`, 50, invoiceInformationTop + 15)
-    .text(invoice.created_at.toLocaleDateString(), 150, invoiceInformationTop + 15)
-    .moveDown();
 
-  return invoiceInformationTop + 15;
+  currentY += 15;
+  doc
+    .text(`${t("invoice-date", "Invoice date")}:`, 50, currentY)
+    .text(invoice.created_at.toLocaleDateString(), 150, currentY)
+
+  if (invoice.kidNumber) {
+    currentY += 15;
+    doc
+      .font("Regular")
+      .text(`${t("kid-number", "KID")}:`, 50, currentY)
+      .font("Bold")
+      .text(invoice.kidNumber, 150, currentY);
+  }
+
+  if (invoice.dueDate) {
+    currentY += 15;
+    doc
+      .font("Regular")
+      .text(`${t("due-date", "Due Date")}:`, 50, currentY)
+      .font("Bold")
+      .text(invoice.dueDate.toLocaleDateString(), 150, currentY);
+  }
+
+  if (invoiceSettings?.bankAccount) {
+    currentY += 15;
+    doc
+      .font("Regular")
+      .text(`${t("bank-account", "Bank Account")}:`, 50, currentY)
+      .font("Bold")
+      .text(invoiceSettings.bankAccount, 150, currentY);
+  }
+
+  doc.moveDown();
+
+  return currentY + 15;
 }

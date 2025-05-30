@@ -10,8 +10,8 @@
  * limitations under the License.
  */
 
-import type { 
-  MedusaRequest, 
+import type {
+  MedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { IOrderModuleService, OrderDTO } from "@medusajs/framework/types"
@@ -29,7 +29,7 @@ export const POST = async (
 ) => {
 
   const documentsModuleService: DocumentsModuleService = req.scope.resolve(DOCUMENTS_MODULE)
-  const orderModuleService: IOrderModuleService  = req.scope.resolve(
+  const orderModuleService: IOrderModuleService = req.scope.resolve(
     Modules.ORDER
   );
 
@@ -43,7 +43,7 @@ export const POST = async (
       const result = await documentsModuleService.generateInvoiceForOrder(order)
       if (result.invoice) {
         const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-        const { 
+        const {
           data: [orderWithInvoice],
         } = await query.graph({
           entity: "order",
@@ -80,7 +80,7 @@ export const POST = async (
     }
   } catch (e) {
     res.status(400).json({
-        message: e.message
+      message: e.message
     })
   }
 }
@@ -97,7 +97,7 @@ export const GET = async (
 
   try {
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-    const { 
+    const {
       data: [orderWithInvoice],
     } = await query.graph({
       entity: "order",
@@ -111,10 +111,10 @@ export const GET = async (
       ],
     });
     if (orderWithInvoice.document_invoice && orderId) {
-      const orderModuleService: IOrderModuleService  = req.scope.resolve(
+      const orderModuleService: IOrderModuleService = req.scope.resolve(
         Modules.ORDER
       );
-      const orderDto = await orderModuleService.retrieveOrder(orderId, 
+      const orderDto = await orderModuleService.retrieveOrder(orderId,
         {
           select: ['*', 'item_total', 'shipping_total', 'tax_total'],
           relations: ['shipping_address', 'billing_address', 'items']
@@ -130,7 +130,7 @@ export const GET = async (
     }
   } catch (e) {
     res.status(400).json({
-        message: e.message
+      message: e.message
     })
   }
 }

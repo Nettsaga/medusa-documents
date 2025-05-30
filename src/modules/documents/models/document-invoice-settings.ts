@@ -18,9 +18,11 @@ const DocumentInvoiceSettings = model.define("document_invoice_settings", {
   forcedNumber: model.number().nullable(),
   numberFormat: model.text().nullable(),
   template: model.text().nullable(),
+  bankAccount: model.text().nullable(),
+  dueDays: model.number().nullable(),
   documentInvoice: model.hasMany(() => DocumentInvoice, {
     mappedBy: 'invoiceSettings'
   })
-}) 
+})
 
 export default DocumentInvoiceSettings

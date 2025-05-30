@@ -19,6 +19,8 @@ export type DocumentInvoiceSettingsDTO = {
   forcedNumber: number | null,
   numberFormat: string | null,
   template: string | null,
+  bankAccount: string | null,
+  dueDays: number | null,
 }
 
 export type DocumentPackingSlipSettingsDTO = {
@@ -30,7 +32,9 @@ export type DocumentPackingSlipSettingsDTO = {
 export type DocumentInvoiceDTO = {
   number: number,
   displayNumber: string,
-  created_at: Date
+  created_at: Date,
+  kidNumber: string | null,
+  dueDate: Date | null,
 }
 
 export type DocumentPackingSlipDTO = {

@@ -10,8 +10,8 @@
  * limitations under the License.
  */
 
-import type { 
-  MedusaRequest, 
+import type {
+  MedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
 
@@ -36,7 +36,7 @@ export const GET = async (
     res.status(200).json({
       settings: lastDocumentInvoiceSettings && lastDocumentInvoiceSettings.length ? lastDocumentInvoiceSettings[0] : undefined
     });
-    
+
   } catch (e) {
     res.status(400).json({
       message: e.message
@@ -53,24 +53,26 @@ export const POST = async (
   const formatNumber: string | undefined = body.formatNumber;
   const forcedNumber: string | undefined = body.forcedNumber;
   const invoiceTemplate: string | undefined = body.template;
+  const bankAccount: string | undefined = body.bankAccount;
+  const dueDays: number | undefined = body.dueDays;
   const documentsModuleService: DocumentsModuleService = req.scope.resolve(DOCUMENTS_MODULE)
 
   try {
-    const newSettings = await documentsModuleService.updateInvoiceSettings(formatNumber, forcedNumber, invoiceTemplate as InvoiceTemplateKind)
+    const newSettings = await documentsModuleService.updateInvoiceSettings(formatNumber, forcedNumber, invoiceTemplate as InvoiceTemplateKind, bankAccount, dueDays)
     if (newSettings !== undefined) {
       res.status(201).json({
         settings: newSettings
-      }); 
+      });
     } else {
       res.status(400).json({
         message: 'Cant update invoice settings'
       })
     }
-   
-    
+
+
   } catch (e) {
     res.status(400).json({
-        message: e.message
+      message: e.message
     })
   }
 }

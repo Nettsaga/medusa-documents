@@ -30,6 +30,8 @@ export type DocumentInvoiceSettings = {
   numberFormat?: string,
   template?: InvoiceTemplateKind
   forcedNumber?: string,
+  bankAccount?: string,
+  dueDays?: number,
 }
 
 export type AdminStoreDocumentSettingsQueryReq = {}
@@ -41,7 +43,9 @@ export type StoreDocumentSettingsResult = {
 export type AdminStoreDocumentInvoiceSettingsPostReq = {
   formatNumber?: string,
   forcedNumber?: number,
-  template?: string
+  template?: string,
+  bankAccount?: string,
+  dueDays?: number,
 }
 
 export type AdminStoreDocumentInvoiceSettingsQueryReq = {}

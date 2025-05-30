@@ -17,5 +17,8 @@ export type Invoice = {
   number: string,
   display_number: string;
   order: OrderDTO,
-  created_at: Date
+  created_at: Date,
+  kidNumber: string | null,
+  bankAccount: string | null,
+  dueDays: number | null
 }
