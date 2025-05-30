@@ -1,7 +1,7 @@
 {
   "name": "@nettsaga/medusa-documents",
   "version": "0.2.11-private.0",
-  "private": false,
+  "private": true,
   "description": "Generate documents from Medusa",
   "author": "Nettsaga (https://nettsaga.no)",
   "license": "MIT",
