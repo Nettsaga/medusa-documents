@@ -55,10 +55,11 @@ export const POST = async (
   const invoiceTemplate: string | undefined = body.template;
   const bankAccount: string | undefined = body.bankAccount;
   const dueDays: number | undefined = body.dueDays;
+  const organizationNumber: string | undefined = body.organizationNumber;
   const documentsModuleService: DocumentsModuleService = req.scope.resolve(DOCUMENTS_MODULE)
 
   try {
-    const newSettings = await documentsModuleService.updateInvoiceSettings(formatNumber, forcedNumber, invoiceTemplate as InvoiceTemplateKind, bankAccount, dueDays)
+    const newSettings = await documentsModuleService.updateInvoiceSettings(formatNumber, forcedNumber, invoiceTemplate as InvoiceTemplateKind, bankAccount, dueDays, organizationNumber)
     if (newSettings !== undefined) {
       res.status(201).json({
         settings: newSettings

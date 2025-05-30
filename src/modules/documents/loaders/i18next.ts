@@ -81,7 +81,8 @@ export default async function i18nextLoader({
             "invoice-date": "Invoice date",
             "kid-number": "KID",
             "bank-account": "Bank Account",
-            "due-date": "Due Date"
+            "due-date": "Due Date",
+            "organization-number": "Organization Number"
           }
         }
       }

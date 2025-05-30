@@ -486,7 +486,7 @@ class DocumentsModuleService extends MedusaService({
     }
   }
 
-  async updateInvoiceSettings(newFormatNumber?: string, forcedNumber?: string, invoiceTemplate?: InvoiceTemplateKind, bankAccount?: string, dueDays?: number): Promise<any> {
+  async updateInvoiceSettings(newFormatNumber?: string, forcedNumber?: string, invoiceTemplate?: InvoiceTemplateKind, bankAccount?: string, dueDays?: number, organizationNumber?: string): Promise<any> {
     const lastDocumentInvoiceSettings = await this.listDocumentInvoiceSettings({}, {
       order: {
         created_at: "DESC"
@@ -500,6 +500,7 @@ class DocumentsModuleService extends MedusaService({
         template: invoiceTemplate ?? lastDocumentInvoiceSettings[0].template,
         bankAccount: bankAccount ?? lastDocumentInvoiceSettings[0].bankAccount,
         dueDays: dueDays ?? lastDocumentInvoiceSettings[0].dueDays,
+        organizationNumber: organizationNumber ?? lastDocumentInvoiceSettings[0].organizationNumber,
       })
       return result;
     } else {
@@ -509,6 +510,7 @@ class DocumentsModuleService extends MedusaService({
         template: invoiceTemplate,
         bankAccount: bankAccount,
         dueDays: dueDays,
+        organizationNumber: organizationNumber,
       })
       return result;
     }

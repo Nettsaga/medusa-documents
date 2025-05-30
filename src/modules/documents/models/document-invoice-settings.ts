@@ -20,6 +20,7 @@ const DocumentInvoiceSettings = model.define("document_invoice_settings", {
   template: model.text().nullable(),
   bankAccount: model.text().nullable(),
   dueDays: model.number().nullable(),
+  organizationNumber: model.text().nullable(),
   documentInvoice: model.hasMany(() => DocumentInvoice, {
     mappedBy: 'invoiceSettings'
   })

@@ -22,7 +22,8 @@ type InvoiceSettings = {
   formatNumber: string,
   forcedNumber?: number,
   bankAccount?: string,
-  dueDays?: number
+  dueDays?: number,
+  organizationNumber?: string,
 }
 
 const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal }: { invoiceSettings?: DocumentInvoiceSettings, setOpenModal: any }) => {
@@ -32,6 +33,7 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal }: { invoiceSetting
   const [forcedNumber, setForcedNumber] = useState(invoiceSettings?.forcedNumber);
   const [bankAccount, setBankAccount] = useState(invoiceSettings?.bankAccount);
   const [dueDays, setDueDays] = useState(invoiceSettings?.dueDays);
+  const [organizationNumber, setOrganizationNumber] = useState(invoiceSettings?.organizationNumber);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const onSubmit = (data: InvoiceSettings) => {
@@ -45,7 +47,8 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal }: { invoiceSetting
         formatNumber: data.formatNumber,
         forcedNumber: data.forcedNumber !== undefined && data.forcedNumber.toString().length ? data.forcedNumber : undefined,
         bankAccount: data.bankAccount || undefined,
-        dueDays: data.dueDays || undefined
+        dueDays: data.dueDays || undefined,
+        organizationNumber: data.organizationNumber || undefined
       })
     })
       .then(async (response) => {
@@ -220,6 +223,25 @@ const InvoiceSettingsForm = ({ invoiceSettings, setOpenModal }: { invoiceSetting
                     setError(undefined);
                     setDueDays(value);
                   }
+                },
+              })}
+            />
+          </Grid>
+        </Grid>
+
+        <Grid container direction={'column'} spacing={1} marginTop={2}>
+          <Grid item>
+            <Label size="small">
+              Organization Number
+            </Label>
+          </Grid>
+          <Grid item>
+            <Input
+              placeholder="123.456.789"
+              defaultValue={invoiceSettings?.organizationNumber || ''}
+              {...register('organizationNumber', {
+                onChange(e) {
+                  setOrganizationNumber(e.target.value);
                 },
               })}
             />

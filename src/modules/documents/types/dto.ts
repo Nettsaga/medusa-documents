@@ -21,6 +21,7 @@ export type DocumentInvoiceSettingsDTO = {
   template: string | null,
   bankAccount: string | null,
   dueDays: number | null,
+  organizationNumber: string | null,
 }
 
 export type DocumentPackingSlipSettingsDTO = {

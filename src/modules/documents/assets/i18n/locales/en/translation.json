@@ -5,6 +5,7 @@
   "kid-number": "KID",
   "bank-account": "Bank Account",
   "due-date": "Due Date",
+  "organization-number": "Organization Number",
   "invoice-customer-details": "Details",
   "invoice-bill-to": "Bill to",
   "invoice-ship-to": "Ship to",

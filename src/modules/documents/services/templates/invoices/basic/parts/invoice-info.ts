@@ -64,6 +64,15 @@ export function generateInvoiceInformation(doc, y: number, invoice: DocumentInvo
       .text(invoiceSettings.bankAccount, 150, currentY);
   }
 
+  if (invoiceSettings?.organizationNumber) {
+    currentY += 15;
+    doc
+      .font("Regular")
+      .text(`${t("organization-number", "Organization Number")}:`, 50, currentY)
+      .font("Bold")
+      .text(invoiceSettings.organizationNumber, 150, currentY);
+  }
+
   doc.moveDown();
 
   return currentY + 15;
