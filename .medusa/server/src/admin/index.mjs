@@ -128,7 +128,8 @@ function ActionsDropdown({ order, updateInvoiceNumber, updatePackingSlipNumber }
 }
 const InvoiceNumberFromOrder = ({
   orderId,
-  invoiceNumber
+  invoiceNumber,
+  showKidNumber = true
 }) => {
   const [data, setData] = useState(void 0);
   const [error, setError] = useState(void 0);
@@ -198,28 +199,30 @@ const InvoiceNumberFromOrder = ({
     return /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(CircularProgress, { size: 8 }) });
   }
   if (data && data.invoice) {
-    return /* @__PURE__ */ jsxs(Grid, { container: true, direction: "column", spacing: 1, children: [
-      /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx(
-        "p",
-        {
-          className: "text-grey-90 hover:text-violet-60 cursor-pointer pl-2 transition-colors duration-200",
-          onClick: () => handleClick(),
-          style: {
-            cursor: "pointer",
-            color: isHovered ? "violet" : "grey",
-            textDecoration: isHovered ? "underline" : "none",
-            transition: "color 0.2s, text-decoration 0.2s"
-          },
-          onMouseEnter: () => setIsHovered(true),
-          onMouseLeave: () => setIsHovered(false),
-          children: `Invoice: ${data.invoice.displayNumber}`
-        }
-      ) }),
-      data.invoice.kidNumber && /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsxs("div", { style: { fontSize: "12px", color: "#6b7280", paddingLeft: "8px" }, children: [
-        "KID: ",
-        data.invoice.kidNumber
-      ] }) })
-    ] });
+    return /* @__PURE__ */ jsxs(
+      Grid,
+      {
+        container: true,
+        direction: "column",
+        spacing: 1,
+        onClick: () => handleClick(),
+        style: {
+          cursor: "pointer",
+          color: isHovered ? "violet" : "grey",
+          textDecoration: isHovered ? "underline" : "none",
+          transition: "color 0.2s, text-decoration 0.2s"
+        },
+        onMouseEnter: () => setIsHovered(true),
+        onMouseLeave: () => setIsHovered(false),
+        children: [
+          /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsx("div", { children: data.invoice.displayNumber }) }),
+          data.invoice.kidNumber && showKidNumber && /* @__PURE__ */ jsx(Grid, { item: true, children: /* @__PURE__ */ jsxs("div", { children: [
+            "KID: ",
+            data.invoice.kidNumber
+          ] }) })
+        ]
+      }
+    );
   } else {
     return /* @__PURE__ */ jsx(Fragment, {});
   }
@@ -436,27 +439,71 @@ const useOrderTableColumns = () => {
         }) })
       },
       {
-        Header: "Documents",
-        id: "documents",
+        Header: "Invoice",
+        id: "invoice",
         Cell: ({ row }) => {
           const orderId = row.original.id;
           const currentDocumentNumbers = documentNumbers[orderId] || void 0;
-          return /* @__PURE__ */ jsx("p", { className: "text-grey-90 group-hover:text-violet-60 pl-2", children: /* @__PURE__ */ jsxs(Grid, { container: true, justifyContent: "flex-start", direction: "column", spacing: 1, children: [
-            /* @__PURE__ */ jsx(
-              InvoiceNumberFromOrder,
-              {
-                orderId,
-                invoiceNumber: currentDocumentNumbers ? currentDocumentNumbers.invoiceNumber : void 0
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              PackingSlipNumber,
-              {
-                orderId,
-                packingSlipNumber: currentDocumentNumbers ? currentDocumentNumbers.packingSlipNumber : void 0
-              }
-            )
-          ] }) });
+          return /* @__PURE__ */ jsx("div", { className: "text-grey-90 group-hover:text-violet-60 pl-2", children: /* @__PURE__ */ jsx(
+            InvoiceNumberFromOrder,
+            {
+              orderId,
+              invoiceNumber: currentDocumentNumbers ? currentDocumentNumbers.invoiceNumber : void 0,
+              showKidNumber: false
+            }
+          ) });
+        }
+      },
+      {
+        Header: "KID",
+        id: "kid",
+        Cell: ({ row }) => {
+          const orderId = row.original.id;
+          const [data, setData] = useState(void 0);
+          const [isLoading, setLoading] = useState(true);
+          const resultParams = new URLSearchParams({
+            orderId
+          });
+          React.useEffect(() => {
+            setLoading(true);
+          }, [orderId]);
+          React.useEffect(() => {
+            if (!isLoading) {
+              return;
+            }
+            fetch(`/admin/documents/invoice?${resultParams.toString()}`, {
+              credentials: "include"
+            }).then((res) => res.json()).then((result) => {
+              setData(result);
+              setLoading(false);
+            }).catch((error) => {
+              console.error(error);
+              setLoading(false);
+            });
+          }, [isLoading, orderId, resultParams]);
+          if (isLoading) {
+            return /* @__PURE__ */ jsx(CircularProgress, { size: 16 });
+          }
+          if (data && data.invoice && data.invoice.kidNumber) {
+            return /* @__PURE__ */ jsx("span", { className: "text-grey-90 group-hover:text-violet-60", children: data.invoice.kidNumber });
+          } else {
+            return /* @__PURE__ */ jsx("span", { children: "-" });
+          }
+        }
+      },
+      {
+        Header: "Packing Slip",
+        id: "packing_slip",
+        Cell: ({ row }) => {
+          const orderId = row.original.id;
+          const currentDocumentNumbers = documentNumbers[orderId] || void 0;
+          return /* @__PURE__ */ jsx("div", { className: "text-grey-90 group-hover:text-violet-60 pl-2", children: /* @__PURE__ */ jsx(
+            PackingSlipNumber,
+            {
+              orderId,
+              packingSlipNumber: currentDocumentNumbers ? currentDocumentNumbers.packingSlipNumber : void 0
+            }
+          ) });
         }
       },
       {
@@ -481,7 +528,6 @@ const useOrderTableColumns = () => {
       }
     ],
     [documentNumbers]
-    // Add documentNumbers as a dependency to ensure it re-renders
   );
   return [columns, documentNumbers];
 };

@@ -3,11 +3,12 @@ import { useMemo, useState } from "react";
 import ReactCountryFlag from "react-country-flag";
 import { Tooltip, TooltipProvider, StatusBadge, Text } from "@medusajs/ui";
 import { currencies } from "./utils/currencies";
-import { Grid, Link } from "@mui/material";
+import { Grid, Link, CircularProgress } from "@mui/material";
 import { ActionsDropdown } from "../../actions-dropdown/actions-dropdown";
 import InvoiceNumberFromOrder from "./invoice-number-from-order";
 import PackingSlipNumber from "./packing-slip-number";
 import { InformationCircle } from "@medusajs/icons";
+import React from "react";
 
 /**
  * Checks the list of currencies and returns the divider/multiplier
@@ -177,7 +178,7 @@ const useOrderTableColumns = () => {
         Header: ("Customer"),
         accessor: "customer",
         Cell: ({ row, cell: { value } }) => {
-          const customer={
+          const customer = {
             first_name:
               value?.first_name ||
               row.original.shipping_address?.first_name,
@@ -186,10 +187,9 @@ const useOrderTableColumns = () => {
             email: row.original.email,
           }
           return (
-            <p className="text-grey-90 group-hover:text-violet-60 min-w-[100px]">{`${
-              (customer.first_name || customer.last_name)
-                ? `${customer.first_name} ${customer.last_name}`
-                : (customer.email
+            <p className="text-grey-90 group-hover:text-violet-60 min-w-[100px]">{`${(customer.first_name || customer.last_name)
+              ? `${customer.first_name} ${customer.last_name}`
+              : (customer.email
                 ? customer.email
                 : "-")}`}</p>
           )
@@ -220,25 +220,87 @@ const useOrderTableColumns = () => {
         ),
       },
       {
-        Header: ("Documents"),
-        id: "documents",
+        Header: ("Invoice"),
+        id: "invoice",
         Cell: ({ row }) => {
           const orderId = row.original.id;
           const currentDocumentNumbers = documentNumbers[orderId] || undefined;
 
           return (
-            <p className="text-grey-90 group-hover:text-violet-60 pl-2">
-              <Grid container justifyContent={'flex-start'} direction={'column'} spacing={1}>
-                <InvoiceNumberFromOrder
-                  orderId={orderId}
-                  invoiceNumber={currentDocumentNumbers ? currentDocumentNumbers.invoiceNumber : undefined}
-                />
-                <PackingSlipNumber
-                  orderId={orderId}
-                  packingSlipNumber={currentDocumentNumbers ? currentDocumentNumbers.packingSlipNumber : undefined}
-                />
-              </Grid>
-            </p>
+            <div className="text-grey-90 group-hover:text-violet-60 pl-2">
+              <InvoiceNumberFromOrder
+                orderId={orderId}
+                invoiceNumber={currentDocumentNumbers ? currentDocumentNumbers.invoiceNumber : undefined}
+                showKidNumber={false}
+              />
+            </div>
+          );
+        },
+      },
+      {
+        Header: ("KID"),
+        id: "kid",
+        Cell: ({ row }) => {
+          const orderId = row.original.id;
+          const [data, setData] = useState<any | undefined>(undefined);
+          const [isLoading, setLoading] = useState(true);
+
+          const resultParams: URLSearchParams = new URLSearchParams({
+            orderId: orderId,
+          });
+
+          React.useEffect(() => {
+            setLoading(true);
+          }, [orderId]);
+
+          React.useEffect(() => {
+            if (!isLoading) {
+              return;
+            }
+
+            fetch(`/admin/documents/invoice?${resultParams.toString()}`, {
+              credentials: "include",
+            })
+              .then((res) => res.json())
+              .then((result) => {
+                setData(result);
+                setLoading(false);
+              })
+              .catch((error) => {
+                console.error(error);
+                setLoading(false);
+              });
+          }, [isLoading, orderId, resultParams]);
+
+          if (isLoading) {
+            return <CircularProgress size={16} />;
+          }
+
+          if (data && data.invoice && data.invoice.kidNumber) {
+            return (
+              <span className="text-grey-90 group-hover:text-violet-60">
+                {data.invoice.kidNumber}
+              </span>
+            );
+          } else {
+            return <span>-</span>;
+          }
+        },
+      },
+      {
+        Header: ("Packing Slip"),
+        id: "packing_slip",
+        Cell: ({ row }) => {
+          const orderId = row.original.id;
+          const currentDocumentNumbers = documentNumbers[orderId] || undefined;
+
+          return (
+            <div className="text-grey-90 group-hover:text-violet-60 pl-2">
+              <PackingSlipNumber
+                orderId={orderId}
+                packingSlipNumber={currentDocumentNumbers ? currentDocumentNumbers.packingSlipNumber : undefined}
+              />
+            </div>
           );
         },
       },
@@ -251,7 +313,7 @@ const useOrderTableColumns = () => {
                   <Grid item>
                     <Text size="small">We do not store documents. </Text>
                     <Link fontSize={12} href='https://github.com/RSC-Labs/medusa-documents?tab=readme-ov-file#what-means-we-do-not-store-documents'>
-                      Learn more what it means. 
+                      Learn more what it means.
                     </Link>
                   </Grid>
                 }>
@@ -267,9 +329,9 @@ const useOrderTableColumns = () => {
           return (
             <Grid container justifyContent={'flex-end'}>
               <Grid item>
-                <ActionsDropdown 
-                  order={row.original} 
-                  updateInvoiceNumber={updateInvoiceNumber} 
+                <ActionsDropdown
+                  order={row.original}
+                  updateInvoiceNumber={updateInvoiceNumber}
                   updatePackingSlipNumber={updatePackingSlipNumber}
                 />
               </Grid>
@@ -278,7 +340,7 @@ const useOrderTableColumns = () => {
         }
       },
     ],
-    [documentNumbers] // Add documentNumbers as a dependency to ensure it re-renders
+    [documentNumbers]
   );
 
   return [columns, documentNumbers];

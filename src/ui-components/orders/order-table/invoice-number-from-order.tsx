@@ -19,9 +19,11 @@ import { InvoiceResult } from "../../types/api";
 const InvoiceNumberFromOrder = ({
   orderId,
   invoiceNumber,
+  showKidNumber = true,
 }: {
   orderId: string;
   invoiceNumber?: string;
+  showKidNumber?: boolean;
 }) => {
   const [data, setData] = useState<any | undefined>(undefined);
 
@@ -114,30 +116,26 @@ const InvoiceNumberFromOrder = ({
 
   if (data && data.invoice) {
     return (
-      <Grid container direction="column" spacing={1}>
+      <Grid
+        container
+        direction="column"
+        spacing={1}
+        onClick={() => handleClick()}
+        style={{
+          cursor: "pointer",
+          color: isHovered ? "violet" : "grey",
+          textDecoration: isHovered ? "underline" : "none",
+          transition: "color 0.2s, text-decoration 0.2s",
+        }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <Grid item>
-          <p
-            className="text-grey-90 hover:text-violet-60 cursor-pointer pl-2 transition-colors duration-200"
-            onClick={() => handleClick()}
-            style={{
-              cursor: "pointer",
-              color: isHovered ? "violet" : "grey",
-              textDecoration: isHovered ? "underline" : "none",
-              transition: "color 0.2s, text-decoration 0.2s",
-            }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            {`Invoice: ${data.invoice.displayNumber}`}
-          </p>
+          <div>{data.invoice.displayNumber}</div>
         </Grid>
-
-        {/* Display KID number if present */}
-        {data.invoice.kidNumber && (
+        {data.invoice.kidNumber && showKidNumber && (
           <Grid item>
-            <div style={{ fontSize: "12px", color: "#6b7280", paddingLeft: "8px" }}>
-              KID: {data.invoice.kidNumber}
-            </div>
+            <div>KID: {data.invoice.kidNumber}</div>
           </Grid>
         )}
       </Grid>
