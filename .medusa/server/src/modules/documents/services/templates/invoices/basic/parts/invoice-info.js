@@ -26,19 +26,19 @@ function generateInvoiceInformation(doc, y, invoice, settings, invoiceSettings) 
         .fontSize(10)
         .text(`${(0, i18next_1.t)("invoice-number", "Invoice number")}:`, 50, currentY)
         .font("Bold")
-        .text(invoice.displayNumber, 150, currentY)
+        .text(invoice.displayNumber, 200, currentY)
         .font("Regular");
     currentY += 15;
     doc
         .text(`${(0, i18next_1.t)("invoice-date", "Invoice date")}:`, 50, currentY)
-        .text(invoice.created_at.toLocaleDateString(), 150, currentY);
+        .text(invoice.created_at.toLocaleDateString(), 200, currentY);
     if (invoice.kidNumber) {
         currentY += 15;
         doc
             .font("Regular")
             .text(`${(0, i18next_1.t)("kid-number", "KID")}:`, 50, currentY)
             .font("Bold")
-            .text(invoice.kidNumber, 150, currentY);
+            .text(invoice.kidNumber, 200, currentY);
     }
     if (invoice.dueDate) {
         currentY += 15;
@@ -46,7 +46,7 @@ function generateInvoiceInformation(doc, y, invoice, settings, invoiceSettings) 
             .font("Regular")
             .text(`${(0, i18next_1.t)("due-date", "Due Date")}:`, 50, currentY)
             .font("Bold")
-            .text(invoice.dueDate.toLocaleDateString(), 150, currentY);
+            .text(invoice.dueDate.toLocaleDateString(), 200, currentY);
     }
     if (invoiceSettings?.bankAccount) {
         currentY += 15;
@@ -54,7 +54,7 @@ function generateInvoiceInformation(doc, y, invoice, settings, invoiceSettings) 
             .font("Regular")
             .text(`${(0, i18next_1.t)("bank-account", "Bank Account")}:`, 50, currentY)
             .font("Bold")
-            .text(invoiceSettings.bankAccount, 150, currentY);
+            .text(invoiceSettings.bankAccount, 200, currentY);
     }
     if (invoiceSettings?.organizationNumber) {
         currentY += 15;
@@ -62,7 +62,7 @@ function generateInvoiceInformation(doc, y, invoice, settings, invoiceSettings) 
             .font("Regular")
             .text(`${(0, i18next_1.t)("organization-number", "Organization Number")}:`, 50, currentY)
             .font("Bold")
-            .text(invoiceSettings.organizationNumber, 150, currentY);
+            .text(invoiceSettings.organizationNumber, 200, currentY);
     }
     doc.moveDown();
     return currentY + 15;
