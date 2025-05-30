@@ -7,7 +7,8 @@
   "license": "MIT",
   "files": [
     ".medusa/server",
-    "src/modules/documents/assets"
+    "src/modules/documents/assets",
+    ".medusa/server/src/modules/documents/assets"
   ],
   "medusa-plugin": {
     "copy": [
@@ -15,7 +16,15 @@
         "from": "src/modules/documents/assets",
         "to": "modules/documents/assets"
       }
-    ]
+    ],
+    "build": {
+      "copy": [
+        {
+          "from": "src/modules/documents/assets",
+          "to": "modules/documents/assets"
+        }
+      ]
+    }
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
